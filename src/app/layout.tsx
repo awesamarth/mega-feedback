@@ -27,13 +27,18 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+
   const headersList = await headers()
   const cookies = headersList.get('cookie')
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <ContextProvider cookies={cookies}>
+      <ContextProvider cookies={cookies}>
+
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        >
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
@@ -44,8 +49,9 @@ export default async function RootLayout({
             {children}
             <Footer />
           </ThemeProvider>
-        </ContextProvider>
-      </body>
+        </body>
+      </ContextProvider>
+
     </html>
   );
 }
