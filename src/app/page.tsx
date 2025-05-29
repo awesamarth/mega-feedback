@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { AlertCircle, CheckCircle2, Loader2, Shield, Zap } from "lucide-react"
+import { AlertCircle, CheckCircle2, Loader2, Shield, Zap, X } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { foundry, megaethTestnet } from 'viem/chains'
 import { FEEDBACK_PAYMENT_ABI, LOCAL_FEEDBACK_PAYMENT_ADDRESS, MEGA_FEEDBACK_PAYMENT_ADDRESS } from '@/constants'
@@ -61,14 +61,15 @@ export default function HomePage() {
  const [isSubmitLoading, setIsSubmitLoading] = useState(false)
  const [hasPaid, setHasPaid] = useState(false)
  const [txHash, setTxHash] = useState<`0x${string}` | undefined>()
+ const [showSuccessModal, setShowSuccessModal] = useState(false)
 
  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
  const { chains, switchChain } = useSwitchChain()
  const chainId = useChainId()
 
- const { data: foundryCheckPaid, refetch: refetchPaymentStatus } = useReadContract({
+ const { data: megaCheckPaid, refetch: refetchPaymentStatus } = useReadContract({
    abi: FEEDBACK_PAYMENT_ABI,
-   address: LOCAL_FEEDBACK_PAYMENT_ADDRESS,
+   address: MEGA_FEEDBACK_PAYMENT_ADDRESS,
    functionName: 'hasPaid',
    args: [address]
  })
@@ -81,11 +82,17 @@ export default function HomePage() {
 
  // Update hasPaid when foundryCheckPaid changes
  useEffect(() => {
-   if (foundryCheckPaid !== undefined) {
-     setHasPaid(Boolean(foundryCheckPaid))
-     console.log('Payment status updated:', foundryCheckPaid)
+   //    if (foundryCheckPaid !== undefined) {
+   //      setHasPaid(Boolean(foundryCheckPaid))
+   //      console.log('Payment status updated:', foundryCheckPaid)
+   //    }
+   //  }, [foundryCheckPaid])
+
+   if (megaCheckPaid !== undefined) {
+     setHasPaid(Boolean(megaCheckPaid))
+     console.log('Payment status updated:', megaCheckPaid)
    }
- }, [foundryCheckPaid])
+ }, [megaCheckPaid])
 
  // Handle transaction confirmation
  useEffect(() => {
@@ -100,10 +107,11 @@ export default function HomePage() {
 
  // Switch to foundry chain and check payment status
  useEffect(() => {
-   if (chainId !== foundry.id) {
-     switchChain({ chainId: foundry.id })
+   if (chainId !== megaethTestnet.id) {
+     console.log("this ain't MegaETH")
+     switchChain({ chainId: megaethTestnet.id })
    }
- }, [isConnected, address, chainId])
+}, [isConnected, address, chainId, switchChain])
 
  const handlePayment = async () => {
    if (!address) return
@@ -114,7 +122,7 @@ export default function HomePage() {
 
      const hash = await writeContractAsync({
        abi: FEEDBACK_PAYMENT_ABI,
-       address: LOCAL_FEEDBACK_PAYMENT_ADDRESS,
+       address: MEGA_FEEDBACK_PAYMENT_ADDRESS,
        functionName: 'pay',
        value: parseEther('0.02'),
      })
@@ -148,11 +156,9 @@ export default function HomePage() {
      })
 
      if (response.ok) {
-       setSubmitStatus('success')
+       setShowSuccessModal(true)
        setFeedback('')
        setSelectedCategory('')
-       // Reset success message after 5 seconds
-       setTimeout(() => setSubmitStatus('idle'), 5000)
      } else {
        setSubmitStatus('error')
      }
@@ -165,7 +171,7 @@ export default function HomePage() {
  }
 
  const isFormEnabled = isConnected && hasPaid
- const canSubmit = isFormEnabled && feedback.trim() && feedback.length <= 1000 &&  selectedCategory && !isSubmitLoading
+ const canSubmit = isFormEnabled && feedback.trim() && feedback.length <= 1000 && selectedCategory && !isSubmitLoading
 
  return (
    <div className="min-h-screen bg-background">
@@ -258,14 +264,15 @@ export default function HomePage() {
            )}
 
            {/* Category Selection */}
-           <div className="space-y-3">
+           <div className="space-y-3 ">
              <label className="text-sm font-mono font-medium">Category</label>
              <Select
                value={selectedCategory}
                onValueChange={setSelectedCategory}
                disabled={!isFormEnabled}
+
              >
-               <SelectTrigger>
+               <SelectTrigger className='hover:cursor-pointer'>
                  <SelectValue placeholder="Select feedback category">
                    {selectedCategory && (
                      <div className="flex items-center gap-2">
@@ -277,7 +284,7 @@ export default function HomePage() {
                </SelectTrigger>
                <SelectContent>
                  {categories.map((category) => (
-                   <SelectItem key={category.id} value={category.id}>
+                   <SelectItem key={category.id} value={category.id} className='hover:cursor-pointer'>
                      <div className="flex items-start gap-3">
                        <span className="text-lg">{category.icon}</span>
                        <div>
@@ -305,7 +312,7 @@ export default function HomePage() {
                className="resize-none"
              />
              <div className="text-xs text-muted-foreground text-right">
-               <span className={`${feedback.length>1000?"text-destructive":""}`}>{feedback.length}</span>/1000 characters
+               <span className={`${feedback.length > 1000 ? "text-destructive" : ""}`}>{feedback.length}</span>/1000 characters
              </div>
            </div>
 
@@ -326,16 +333,7 @@ export default function HomePage() {
              )}
            </Button>
 
-           {/* Success/Error Messages */}
-           {submitStatus === 'success' && (
-             <Alert className="flex w-full items-center border-green-200 bg-green-50 dark:bg-green-950/20">
-               <CheckCircle2 className="h-4 w-4 mr-2 -mt-0.5 flex-shrink-0 text-green-600" />
-               <AlertDescription className="flex-1 text-green-800 dark:text-green-200">
-                 Feedback submitted successfully! Thank you for helping improve MegaETH.
-               </AlertDescription>
-             </Alert>
-           )}
-
+           {/* Error Message */}
            {submitStatus === 'error' && (
              <Alert variant="destructive" className="flex w-full items-center">
                <AlertCircle className="h-4 w-4 mr-2 -mt-0.5 flex-shrink-0" />
@@ -356,6 +354,29 @@ export default function HomePage() {
          </CardContent>
        </Card>
      </div>
+
+     {/* Success Modal */}
+     {showSuccessModal && (
+       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-in fade-in duration-200">
+         <div className="bg-background rounded-lg p-8 max-w-md mx-4 animate-in zoom-in-95 duration-200">
+           <div className="text-center space-y-4">
+             <div className="mx-auto w-12 h-12 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center">
+               <CheckCircle2 className="h-6 w-6 text-green-600" />
+             </div>
+             <h2 className="text-xl font-bold font-mono">Thank You!</h2>
+             <p className="text-muted-foreground">
+               Feedback submitted successfully! Thank you for helping improve MegaETH.
+             </p>
+             <Button
+               onClick={() => setShowSuccessModal(false)}
+               className="font-mono hover:cursor-pointer"
+             >
+               Close
+             </Button>
+           </div>
+         </div>
+       </div>
+     )}
    </div>
  )
 }
