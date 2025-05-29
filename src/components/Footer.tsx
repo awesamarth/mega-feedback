@@ -30,7 +30,7 @@ export default function Footer() {
               DOCS
             </Link>
             <Link 
-              href="/feedback"
+              href="/view-feedback"
               className="hover:text-primary transition-colors duration-200"
             >
               VIEW FEEDBACK

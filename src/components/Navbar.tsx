@@ -32,7 +32,7 @@ export default function Navbar() {
 
       <div className="flex items-center gap-6">
         <Link 
-          href="/feedback" 
+          href="/view-feedback" 
           className="text-sm font-mono hover:text-primary transition-colors duration-200"
         >
           VIEW FEEDBACK
@@ -44,7 +44,7 @@ export default function Navbar() {
             className="p-2 hover:bg-accent hover:cursor-pointer rounded-md transition-colors duration-200"
             aria-label="Toggle theme"
           >
-            {theme === 'dark' ? (
+            {theme === 'light' ? (
               <Sun className="h-5 w-5" />
             ) : (
               <Moon className="h-5 w-5" />
