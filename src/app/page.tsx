@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { AlertCircle, CheckCircle2, Loader2, Shield, Zap } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
+
 const categories = [
   {
     id: 'speed_performance',
