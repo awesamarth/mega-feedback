@@ -104,6 +104,10 @@ export default function HomePage() {
     }
   }
 
+  const getSelectedCategory = (id: string) => {
+    return categories.find(cat => cat.id === id)
+  }
+
   const handleSubmit = async () => {
     if (!feedback.trim() || !selectedCategory) return
 
@@ -148,12 +152,11 @@ export default function HomePage() {
       <div className="max-w-4xl mx-auto px-6 py-12 pb-24">
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-6xl font-bold font-mono mb-4">
-            ANONYMOUS
-            <br />
-            <span className="text-muted-foreground">FEEDBACK</span>
+            MEGA
+            <span className="text-muted-foreground"> FEEDBACK</span>
           </h1>
           <p className="text-xl text-muted-foreground font-mono max-w-2xl mx-auto">
-            Share your honest thoughts about MegaETH. Pay once, submit anonymously.
+            Share your honest thoughts about MegaETH. Pay once, submit <b>anonymously. </b>
             Your identity stays completely private.
           </p>
         </div>
@@ -248,7 +251,14 @@ export default function HomePage() {
                 disabled={!isFormEnabled}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select feedback category" />
+                  <SelectValue placeholder="Select feedback category">
+                    {selectedCategory && (
+                      <div className="flex items-center gap-2">
+                        <span>{getSelectedCategory(selectedCategory)?.icon}</span>
+                        <span>{getSelectedCategory(selectedCategory)?.label}</span>
+                      </div>
+                    )}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map((category) => (

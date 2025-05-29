@@ -95,6 +95,7 @@
   --muted-foreground: #cccccc;
   --accent: #3a3a3b;
   --accent-foreground: #ffffff;
+  
   --destructive: oklch(0.704 0.191 22.216);  /* Keep this for red */
   --border: #444444;  /* Stronger border for dark mode */
   --input: #444444;
@@ -115,6 +116,7 @@
   --sidebar-border: #444444;
   --sidebar-ring: #666666;
 }
+
 
 @layer base {
   * {

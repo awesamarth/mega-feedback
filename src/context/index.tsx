@@ -2,10 +2,11 @@
 
 import { wagmiAdapter, projectId } from '@/config'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { createAppKit } from '@reown/appkit/react'
+import { createAppKit, useAppKitTheme } from '@reown/appkit/react'
 import { foundry, megaethTestnet } from '@reown/appkit/networks'
-import React, { ReactNode } from 'react'
+import React, { ReactNode, useEffect } from 'react'
 import { cookieToInitialState, WagmiProvider} from 'wagmi'
+import { useTheme } from 'next-themes'
 
 // Set up queryClient
 const queryClient = new QueryClient()
@@ -16,9 +17,9 @@ if (!projectId) {
 
 // Set up metadata
 const metadata = {
-  name: 'gambit',
-  description: 'AppKit Example',
-  url: 'https://appkitexampleapp.com', // origin must match your domain & subdomain
+  name: 'megaeth-feedback',
+  description: 'Anonymous Feedback for MegaETH',
+  url: 'https://appkitexampleapp.com',
   icons: ['https://avatars.githubusercontent.com/u/179229932']
 }
 
@@ -30,22 +31,40 @@ const modal = createAppKit({
   defaultNetwork: megaethTestnet,
   metadata: metadata,
   features: {
-    email:false,
-    socials:['google'],
+    email: true,
+    socials: ['google'],
   },
-  themeVariables:{
+  themeVariables: {
     '--w3m-accent': '#121212',
-    '--w3m-border-radius-master' : '0.5px'
-  },
-  themeMode:'light'
+    '--w3m-border-radius-master': '0.5px'
+  }
+  // Removed themeMode - let ThemeSynchronizer handle it
 })
 
+// Theme synchronization component
+function ThemeSynchronizer() {
+  const { resolvedTheme } = useTheme()
+  console.log(resolvedTheme)
+  const { setThemeMode } = useAppKitTheme()
+  
+  useEffect(() => {
+    if (resolvedTheme) {
+      setThemeMode(resolvedTheme === 'dark' ? 'dark' : 'light')
+    }
+  }, [resolvedTheme, setThemeMode])
+  
+  return null
+}
+
 function ContextProvider({ children, cookies }: { children: ReactNode; cookies: string | null }) {
-  const initialState = cookieToInitialState(wagmiAdapter.wagmiConfig , cookies)
+  const initialState = cookieToInitialState(wagmiAdapter.wagmiConfig, cookies)
 
   return (
-    <WagmiProvider config={wagmiAdapter.wagmiConfig } initialState={initialState}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    <WagmiProvider config={wagmiAdapter.wagmiConfig} initialState={initialState}>
+      <QueryClientProvider client={queryClient}>
+        <ThemeSynchronizer />
+        {children}
+      </QueryClientProvider>
     </WagmiProvider>
   )
 }
