@@ -37,12 +37,17 @@ export default function FeedbackPage() {
     const [isCorrect, setIsCorrect] = useState(true)
     const [hasMore, setHasMore] = useState(true)
     const [loadingMore, setLoadingMore] = useState(false)
+    const [showRetry, setShowRetry] = useState(false)
+
+
     const [page, setPage] = useState(1)
 
     const handlePasswordSubmit = async () => {
         if (!password.trim()) return
 
         setIsLoading(true)
+        setShowRetry(false)
+
         try {
             const response = await fetch('/api/view-feedback', {
                 method: 'POST',
@@ -242,9 +247,21 @@ export default function FeedbackPage() {
                 {/* Wrong password alert */}
                 {!isCorrect && (
                     <Alert className="mb-6">
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertDescription >
-                            <span className='text-destructive'>Seeing gibberish? It's because you entered the wrong password ;{`)`}</span>
+                        <AlertCircle className="h-4 w-4 mt-1.75" />
+                        <AlertDescription className="flex items-center justify-between">
+                            <span className='text-destructive'>Seeing gibberish? It's because you entered the wrong password ;)</span>
+                            <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => {
+                                    setIsAuthenticated(false)
+                                    setPassword('')
+                                    setFeedbacks([])
+                                }}
+                                className="ml-4 hover:cursor-pointer"
+                            >
+                                Retry
+                            </Button>
                         </AlertDescription>
                     </Alert>
                 )}
