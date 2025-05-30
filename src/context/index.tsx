@@ -30,15 +30,10 @@ const modal = createAppKit({
   networks: [megaethTestnet, foundry],
   defaultNetwork: megaethTestnet,
   metadata: metadata,
-  features: {
-    email: true,
-    socials: ['google'],
-  },
   themeVariables: {
     '--w3m-accent': '#121212',
     '--w3m-border-radius-master': '0.5px'
   }
-  // Removed themeMode - let ThemeSynchronizer handle it
 })
 
 // Theme synchronization component
