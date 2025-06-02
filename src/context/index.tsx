@@ -33,10 +33,6 @@ const modal = createAppKit({
   themeVariables: {
     '--w3m-accent': '#121212',
     '--w3m-border-radius-master': '0.5px'
-  },
-  features:{
-    email:false,
-    socials:false
   }
 })
 
