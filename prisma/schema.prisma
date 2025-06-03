@@ -14,4 +14,6 @@ model Feedback {
   encrypted_feedback String
   category          String
   created_at        DateTime
+  status            String   @default("pending")  
+  reviewed_at       DateTime?                     
 }
